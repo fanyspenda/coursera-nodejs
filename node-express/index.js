@@ -1,15 +1,17 @@
 const express = require("express");
 const http = require("http");
+const morgan = require(`morgan`);
 
 const hostname = "localhost";
 const port = 3000;
 
 const app = express();
+app.use(morgan(`dev`));
+
+//mereturn file html sesuai url
+app.use(express.static(__dirname + `/public`));
 
 app.use((req, res, next) => {
-  console.log("====================================");
-  console.log(res.header);
-  console.log("====================================");
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/html");
   res.end(`
