@@ -5,54 +5,59 @@ const url = "mongodb://localhost:27017/";
 const dbname = "conFusion";
 const dboper = require("./operations");
 
-mongoclient.connect(url, (err, client) => {
-  assert.equal(err, null);
-  console.log("connected correctly to database");
-  console.log("====================================");
-  const db = client.db(dbname);
+mongoclient
+  .connect(url)
+  //then merupakan fungsi yang dijalankan ketika promise terpenuhi/selesai
+  .then(client => {
+    console.log("connected correctly to database");
+    const db = client.db(dbname);
 
-  dboper.insertDocument(
-    db,
-    {
-      name: "Dishtiny hero",
-      description: "yugioh's archetype"
-    },
-    `dishes`,
-    res => {
-      console.log(`menambahkan document ${JSON.stringify(res.ops, null, 2)}`);
+    dboper
+      .insertDocument(
+        db,
+        { name: "Dishtiny hero", description: "yugioh's archetype" },
+        `dishes`
+      )
 
-      dboper.findAllDocuments(db, "dishes", docs => {
-        console.log(`mencari document
-        ${JSON.stringify(docs, null, 2)}`);
+      .then(res => {
+        console.log(`menambahkan document ${JSON.stringify(res.ops, null, 2)}`);
+        return dboper.findAllDocuments(db, "dishes");
+      })
 
-        dboper.updateDocument(
+      .then(docs => {
+        console.log(`mencari document${JSON.stringify(docs, null, 2)}`);
+        return dboper.updateDocument(
           db,
           { name: "piring 1" },
-          { description: "updated description lagi" },
-          `dishes`,
-          result => {
-            console.log(
-              `updated documents ${JSON.stringify(result.result, null, 2)}`
-            );
-
-            dboper.removeDocument(
-              db,
-              { name: "Dishtiny hero" },
-              `dishes`,
-              result => {
-                console.log(
-                  `menghapus document ${JSON.stringify(result.result, null, 2)}`
-                );
-
-                dboper.findAllDocuments(db, `dishes`, docs2 => {
-                  console.log(`mencari document 
-                  ${JSON.stringify(docs2, null, 2)}`);
-                });
-              }
-            );
-          }
+          { description: "updated description dengan promise" },
+          `dishes`
         );
+      })
+
+      .then(result => {
+        console.log(
+          `updated documents ${JSON.stringify(result.result, null, 2)}`
+        );
+        return dboper.removeDocument(db, { name: "Dishtiny hero" }, `dishes`);
+      })
+
+      .then(result => {
+        console.log(
+          `menghapus document ${JSON.stringify(result.result, null, 2)}`
+        );
+        return dboper.findAllDocuments(db, `dishes`);
+      })
+
+      .then(docs2 => {
+        console.log(`mencari document ${JSON.stringify(docs2, null, 2)}`);
+        client.close();
+      })
+
+      .catch(e => {
+        console.log(`error on operating query: ${e}`);
       });
-    }
-  );
-});
+  })
+  //catch menangani error yang terjadi ketika menjalankan promise
+  .catch(err => {
+    console.log(`Error on Connecting to database: ${err}`);
+  });

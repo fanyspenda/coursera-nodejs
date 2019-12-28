@@ -1,42 +1,25 @@
 const assert = require("assert");
 
-exports.insertDocument = (db, document, collection, callback) => {
+//menambah 1 dokumen baru
+exports.insertDocument = (db, document, collection) => {
   const coll = db.collection(collection);
-  coll.insertOne(document, (err, result) => {
-    assert.equal(err, null);
-    console.log(
-      `menambah data: ${JSON.stringify(
-        result.result.n,
-        null,
-        2
-      )} ke collection: ${collection}`
-    );
-    callback(result);
-  });
+  return coll.insertOne(document);
 };
 
-exports.findAllDocuments = (db, collection, callback) => {
+//mencari seluruh document
+exports.findAllDocuments = (db, collection) => {
   const coll = db.collection(collection);
-  coll.find({}).toArray((err, docs) => {
-    assert.equal(err, null);
-    callback(docs);
-  });
+  return coll.find({}).toArray();
 };
 
-exports.removeDocument = (db, document, collection, callback) => {
+//menghapus document sekaligus dengan kondisi
+exports.removeDocument = (db, document, collection) => {
   const coll = db.collection(collection);
-  coll.deleteMany(document, (err, result) => {
-    assert.equal(err, null);
-    console.log(`delete document jika ${JSON.stringify(document, null, 2)}`);
-    callback(result);
-  });
+  return coll.deleteMany(document);
 };
 
-exports.updateDocument = (db, document, update, collection, callback) => {
+//mengupdate 1 document
+exports.updateDocument = (db, document, update, collection) => {
   const coll = db.collection(collection);
-  coll.updateOne(document, { $set: update }, null, (err, result) => {
-    assert.equal(err, null);
-    console.log(`update document dengan ${JSON.stringify(update, null, 2)}`);
-    callback(result);
-  });
+  return coll.updateOne(document, { $set: update }, null);
 };
