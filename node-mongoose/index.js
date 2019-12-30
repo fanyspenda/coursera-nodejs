@@ -10,20 +10,41 @@ mongoose
   .then(db => {
     console.log(`connecting to database`);
 
-    let newDish = Dishes({
+    Dishes.create({
       name: `dishney land`,
       description: `a dish for kids`
-    });
-
-    newDish
-      .save()
+    })
       .then(dish => {
         console.log(`${JSON.stringify(dish, null, 2)}`);
 
-        return Dishes.find({}).exec();
+        return Dishes.findByIdAndUpdate(
+          dish._id,
+          {
+            description: `a dish for kids, updated!`
+          },
+          { new: true, useFindAndModify: false }
+        ).exec();
       })
-      .then(result => {
-        console.log(`${JSON.stringify(result, null, 2)}`);
+      .then(dish => {
+        console.log(`${JSON.stringify(dish, null, 2)}`);
+
+        dish.comments.push(
+          {
+            rating: 5,
+            comment: `anak saya suka.. ngomong sendiri`,
+            author: `Smithy`
+          },
+          {
+            rating: 3,
+            comment: `piring bagus, tapi lebih bagus lagi kalo nggak ada`,
+            author: `Weber`
+          }
+        );
+
+        return dish.save();
+      })
+      .then(res => {
+        console.log(`${JSON.stringify(res, null, 2)}`);
 
         // return Dishes.remove({});
         return mongoose.connection.close();

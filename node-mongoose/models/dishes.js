@@ -1,14 +1,19 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const dishScema = new Schema(
+const commentSchema = new Schema(
   {
-    name: {
-      type: String,
-      unique: true,
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
       required: true
     },
-    description: {
+    comment: {
+      type: String,
+      required: true
+    },
+    author: {
       type: String,
       required: true
     }
@@ -18,6 +23,24 @@ const dishScema = new Schema(
   }
 );
 
-let Dishes = mongoose.model("dish", dishScema);
+const dishSchema = new Schema(
+  {
+    name: {
+      type: String,
+      unique: true,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    comments: [commentSchema]
+  },
+  {
+    timestamps: true
+  }
+);
+
+let Dishes = mongoose.model("dish", dishSchema);
 
 module.exports = Dishes;
