@@ -1,28 +1,41 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const dishesRouter = express.Router();
 
 dishesRouter.use(bodyParser.json());
 
+const mongoose = require(`mongoose`);
+const Dishes = require(`../models/dishes`);
+
 //menggunakan / biasa karena /dishes sudah secara otomatis didefine dan dikirim dari index
 dishesRouter
   .route("/")
-  .all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
-  })
-
   //operasi non-parameter
   .get((req, res, next) => {
-    res.end("memberikan semua piring ke anda!");
+    Dishes.find({})
+      .then(
+        docs => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(docs);
+        },
+        err => next(err)
+      )
+      .catch(err => next(err));
   })
 
   .post((req, res, next) => {
-    res.end(
-      `menambah piring dengan nama ${req.body.name} dan detail ${req.body.description}`
-    );
+    Dishes.create(req.body)
+      .then(
+        doc => {
+          console.log(`dishes created!`);
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(doc);
+        },
+        err => next(err)
+      )
+      .catch(err => next(err));
   })
 
   .put((req, res, next) => {
@@ -33,19 +46,32 @@ dishesRouter
 
   //operasi berbahaya karena menghapus semua data `dishes`. Akan dipelajari pada bagian auth
   .delete((req, res, next) => {
-    res.end(`menghapus semua piring`);
+    Dishes.remove({})
+      .then(
+        resp => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(resp);
+        },
+        err => next(err)
+      )
+      .catch(err => next(err));
   });
 
 //operasi berparameter
 dishesRouter
   .route("/:dishId")
-  .all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
-  })
   .get((req, res, next) => {
-    res.end(`menampilkan detail piring dengan id ${req.params.dishId}`);
+    Dishes.findById(req.params.dishId)
+      .then(
+        doc => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(doc);
+        },
+        err => next(err)
+      )
+      .catch(err => next(err));
   })
 
   .post((req, res, next) => {
@@ -55,14 +81,33 @@ dishesRouter
   })
 
   .put((req, res, next) => {
-    res.write(`mengupdate data piring dengan id ${req.params.dishId} \n`);
-    res.end(
-      `berhasil mengupdate data piring menjadi nama ${req.body.name} dan deskripsi ${req.body.description}`
-    );
+    Dishes.findByIdAndUpdate(
+      req.params.dishId,
+      { $set: req.body },
+      { new: true }
+    )
+      .then(
+        doc => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(doc);
+        },
+        err => next(err)
+      )
+      .catch(err => next(err));
   })
 
   .delete((req, res, next) => {
-    res.end(`menghapus data piring dengan id ${req.params.dishId}`);
+    Dishes.findByIdAndRemove(req.params.dishId)
+      .then(
+        resp => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(resp);
+        },
+        err => next(err)
+      )
+      .catch(err => next(err));
   });
 
 module.exports = dishesRouter;

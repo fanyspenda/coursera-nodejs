@@ -4,9 +4,23 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
+const mongoose = require("mongoose");
+const url = `mongodb://localhost:27017/conFusion`;
+const connect = mongoose.connect(url);
+const ModelDishes = require(`./models/dishes`);
+
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 let dishRouter = require("./routes/dishesRouter");
+
+connect.then(
+  db => {
+    console.log(`connected to Database`);
+  },
+  err => {
+    console.log(`error connected t{o database: ${err}`);
+  }
+);
 
 var app = express();
 
